@@ -1,0 +1,45 @@
+步骤1：制作密钥
+
+开始－运行－CMD
+
+先测试一下，键入：(键入尖括号右面的代码。尖括号不要键入，下同)
+
+>keytool   或者 > D:\Java\jdk1.6.0_16\bin\keytool   (这里的路径按照自己的实际路径操作)
+
+如果没有出现帮助说明，说明Path没有配置，请到环境变量中自行配置。 
+
+配置好了重新打开CMD窗口，转到c:\resource\cas目录下。
+
+>c:
+>cd\
+>cd resource\cas
+
+1：生成证书，键入：
+
+>keytool -genkey -alias tomcat -keystore ./mykeystore -keyalg RSA -validity 2000
+
+说明：
+这里-alias tomcat 表示生成的这个证书的别名叫tomcat；-keyalg RSA指的是采用的RSA算法；-keystore ./mykeystore 指生成的证书存储的位置(c:\resource/cas)；回车后会提示你输入keystore password，这可以自己定（这里输入changeit（默认的，我没改，当然你也可以随意设置），下面配置tomcat时要用的），密码输入后，会让你输入其他信息，在开始问“您的名字与姓氏是什么？”的时候，必须填写你服务器所在域名（在局域网中测试时，使用主机名或hosts文件中注册的域名，本机可以使用localhost）。
+其他的问题随便输入。
+
+最后，使用密码相同，直接回车。
+
+操作成功的话，会在c:\resource\cas目录下产生一个mykeystore的文件
+
+2：创建证书后，就导出证书。
+>keytool -export -alias tomcat -keystore ./mykeystore -file server.crt
+
+回车后Keystore password:changeit
+
+操作成功的话，会在c:\resource\cas目录下产生一个server.crt的文件
+
+3：为客户端的JVM导入密钥。
+
+>keytool -import -alias tomcat -file ./server.crt -keystore %JAVA_HOME%/jre/lib/security/cacerts
+
+回车后Keystore password:changeit（注，这时输入默认的密码：changeit  不论你设置的什么密码）
+
+特别说明：这个%JAVA_HOME%是指tomcat需要使用的JDK，当然，如果按照本文后面的用eclipse里配置的tomcat，那%JAVA_HOME%就是eclipse中tomcat所配置的JDK,如果你配到其他的jdk上，到后面实际访问服务端的时候会出现异常：unable to find valid certification path to requested target。
+
+至此，步骤1完成。
+ 
